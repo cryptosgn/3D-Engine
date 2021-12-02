@@ -31,14 +31,17 @@ public class LvlScene extends Scene {
 		if(ischangingscenes && timelefttochangescenes > 0) {
 			
 			timelefttochangescenes -= deltaT;
-			Window.r -= deltaT * 5f;
+			Window.r -= deltaT * 8f;
 			Window.g -= deltaT * 5f;
-			Window.b -= deltaT * 5f;
+			Window.b -= deltaT * 2f;
 			Window.a -= deltaT * 5f;
+			
 		}
-		  
-		if(ischangingscenes) { 
+//		oben stehende Bedingung muss erst eintrten
+//			wenn keine Zeit mehr aber Szenen noch gewechselt werden müssen (nächster update-Call)
+		else if(ischangingscenes) { 
 			Window.changecurrentscene(0);
+			ischangingscenes = false;
 		}
 		
 	}

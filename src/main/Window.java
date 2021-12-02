@@ -33,7 +33,7 @@ public class Window {
 		init();
 		gameloop();
 
-//		not neccasseruy but still a good idea
+//		not neccassery but still a good idea
 		GLFW.glfwDestroyWindow(mainwindow);
 		GLFW.glfwTerminate();
 		GLFW.glfwSetErrorCallback(null).free();
