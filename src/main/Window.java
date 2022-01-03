@@ -118,7 +118,6 @@ public class Window {
 		
 		GL46.glClearColor(r, g, b, a);
 		GL46.glClear(GL46.GL_COLOR_BUFFER_BIT);
-		
 		if(deltaT >= 0) {
 			currentscene.update(deltaT);
 		}

@@ -3,27 +3,31 @@ package main;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL46;
 
 public class LvlEdit extends Scene {
 	
-	private String vertexShaderSrc = "layout (location=0) in vec3 aPos;\r\n"
+	private String vertexShaderSrc = "#version 460\r\n"
+			+ "layout (location=0) in vec3 aPos;\r\n"
 			+ "layout (location=1) in vec4 aColor;\r\n"
 			+ "\r\n"
 			+ "out vec4 fColor;\r\n"
 			+ "\r\n"
-			+ "void main(){\r\n"
-			+ "fColor = aColor;\r\n"
-			+ "gl_Position = vec4(aPos, 1.0);\r\n"
+			+ "void main()\r\n"
+			+ "{\r\n"
+			+ "    fColor = aColor;\r\n"
+			+ "    gl_Position = vec4(aPos, 1.0f);\r\n"
 			+ "}";
 	
-	private String fragmentShaderSrc = "in vec4 fColor;\r\n"
+	private String fragmentShaderSrc = "#version 460\r\n"
+			+ "\r\n"
+			+ "in vec4 fColor;\r\n"
 			+ "\r\n"
 			+ "out vec4 color;\r\n"
 			+ "\r\n"
-			+ "void main(){\r\n"
-			+ "color = fColor;\r\n"
+			+ "void main()\r\n"
+			+ "{\r\n"
+			+ "    color = fColor;\r\n"
 			+ "}";
 	
 	private float[] vertexArr = {
@@ -69,11 +73,9 @@ public class LvlEdit extends Scene {
 		int funzt = GL46.glGetShaderi(vertexID, GL46.GL_COMPILE_STATUS);
 		
 		
-		
-//		eventueller Fehler hier
 		fragmentID = GL46.glCreateShader(GL46.GL_FRAGMENT_SHADER);
 		
-		GL46.glShaderSource(fragmentID, vertexShaderSrc);
+		GL46.glShaderSource(vertexID, vertexShaderSrc);
 		
 		GL46.glCompileShader(fragmentID);
 		
@@ -90,6 +92,14 @@ public class LvlEdit extends Scene {
 			
 		assert false: "";
 		}
+		
+//		Shader linken
+		ShaderProg = GL46.glCreateProgram();
+		GL46.glAttachShader(ShaderProg, vertexID);
+		GL46.glAttachShader(ShaderProg, fragmentID);
+		GL46.glLinkProgram(ShaderProg);
+		
+		funzt = GL46.glGetProgrami(ShaderProg, GL46.GL_LINK_STATUS);
 		
 		VAOID = GL46.glGenVertexArrays();
 		
@@ -110,25 +120,47 @@ public class LvlEdit extends Scene {
 		GL46.glBufferData(GL46.GL_ELEMENT_ARRAY_BUFFER, elementbuffer, GL46.GL_STATIC_DRAW);
 		
 //		Arrays Aufteilen
-		int positionsize = 4; //x,y,z,w
+		int positionsize = 3; //x,y,z
 		int colorsize = 4; //r,g,b,a
 		int floatsize = 4; // a float is 4 bytes in java
 		int vertexsize = (positionsize + colorsize)*floatsize; // Size of 1 vertex in bytes
 		
+//		Position 1 ist von der Größe positionsize
 		GL46.glVertexAttribPointer(0, positionsize, GL46.GL_FLOAT, false, vertexsize, 0);
 		GL46.glEnableVertexAttribArray(0);
-		
+//		Der Letzte Wert dieser Methode ist der Pointer, was beduted, dass in diesem Falle das Ganze Auf diese Position "zeigt", worüber es dann abgerufen werden kann
+		GL46.glVertexAttribPointer(1, colorsize, GL46.GL_FLOAT, false, vertexsize, positionsize*floatsize);
+		GL46.glEnableVertexAttribArray(1);
 	}
 	
 	
 	public LvlEdit(){
 		
-		
+		init();
 		
 	}
 
 	@Override
 	public void update(float deltaT) {
 	
+		 // Bind shader program
+        GL46.glUseProgram(ShaderProg);
+        // Bind the VAO that we're using
+        GL46.glBindVertexArray(VAOID);
+
+        // Enable the vertex attribute pointers
+        GL46.glEnableVertexAttribArray(0);
+        GL46.glEnableVertexAttribArray(1);
+
+        GL46.glDrawElements(GL46.GL_TRIANGLES, elementArr.length, GL46.GL_UNSIGNED_INT, 0);
+
+        // Unbind everything
+        GL46.glDisableVertexAttribArray(0);
+        GL46.glDisableVertexAttribArray(1);
+
+        GL46.glBindVertexArray(0);
+
+        GL46.glUseProgram(0);
+		
 	}
 }
