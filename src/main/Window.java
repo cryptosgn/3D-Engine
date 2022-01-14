@@ -15,10 +15,10 @@ public class Window {
 	long mainwindow = 0;
 	
 //	getter und setter einbauen
-	public static float r = 1;
-	public static float g = 1;
-	public static float b = 1;
-	public static float a = 1;	
+	public static float r;
+	public static float g;
+	public static float b;
+	public static float a;	
 	
 	protected static Scene currentscene;
 	
@@ -45,11 +45,11 @@ public class Window {
 			switch(newcurrent) {
 				
 				case 0: {currentscene = new LvlEdit();
-		//		currentsceneinit
+				currentscene.init();
 				break;
 				}
 				case 1: {currentscene = new LvlScene();
-		//		currentsceneinit
+				currentscene.init();
 				break;
 				}	
 //				assert schreibt Automatisch Fehlerbericht, wenn es nicht klappt... diese Art ovn Problem hat man vorher händisch mit Kommentaren gemacht
@@ -119,6 +119,7 @@ public class Window {
 		GL46.glClearColor(r, g, b, a);
 		GL46.glClear(GL46.GL_COLOR_BUFFER_BIT);
 		if(deltaT >= 0) {
+//			System.out.println("test");
 			currentscene.update(deltaT);
 		}
 		

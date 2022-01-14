@@ -33,18 +33,18 @@ public class LvlEdit extends Scene {
 	private float[] vertexArr = {
 //			position			color
 //			x,y,z				r,g,b,a
-			-1.0f,-1.0f,0.0f,	0.0f,1.0f,0.0f,1.0f, //unten links
-			1.0f,-1.0f,0.0f,	1.0f,0.0f,0.0f,1.0f,//unten rechts
-			-1.0f,1.0f,0.0f,	0.0f,0.0f,1.0f,1.0f, //oben links
-			1.0f,1.0f,0.0f,		0.0f,1.0f,1.0f,1.0f //oben rechts
+	         0.5f, -0.5f, 0.0f,       1.0f, 0.0f, 0.0f, 0.0f, // Bottom right 0
+	         -0.5f,  1.0f, 0.0f,       0.0f, 1.0f, 0.0f, 0.0f, // Top left     1
+	          0.5f,  0.5f, 0.0f ,      0.0f, 0.0f, 1.0f, 1.0f, // Top right    2
+	         -0.5f, -0.5f, 0.0f,       0.0f, 0.0f, 0.0f, 1.0f, // Bottom left  3
 //			potenzielle Fehlerquelle
 	};
 	
 //	+++Wichtig+++ muss gegen den Uhrzeigersinn verlaufen
-	private float[] elementArr = {
+	private int[] elementArr = {
 			
-			3,4,2,
-			2,3,4
+            2, 1, 0, // Top right triangle
+            3, 2, 0 // bottom left triangle
 			
 	};
 	
@@ -75,7 +75,7 @@ public class LvlEdit extends Scene {
 		
 		fragmentID = GL46.glCreateShader(GL46.GL_FRAGMENT_SHADER);
 		
-		GL46.glShaderSource(vertexID, vertexShaderSrc);
+		GL46.glShaderSource(fragmentID, fragmentShaderSrc);
 		
 		GL46.glCompileShader(fragmentID);
 		
@@ -102,18 +102,17 @@ public class LvlEdit extends Scene {
 		funzt = GL46.glGetProgrami(ShaderProg, GL46.GL_LINK_STATUS);
 		
 		VAOID = GL46.glGenVertexArrays();
-		
 		GL46.glBindVertexArray(VAOID);
 		
 		FloatBuffer vertexbuffer = BufferUtils.createFloatBuffer(vertexArr.length);
 		vertexbuffer.put(vertexArr).flip();
 		
-		VAOID = GL46.glGenBuffers();
-		GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, VAOID);
+		VBOID = GL46.glGenBuffers();
+		GL46.glBindBuffer(GL46.GL_ARRAY_BUFFER, VBOID);
 		GL46.glBufferData(GL46.GL_ARRAY_BUFFER, vertexbuffer, GL46.GL_STATIC_DRAW);
 		
 		IntBuffer elementbuffer = BufferUtils.createIntBuffer(elementArr.length);
-		vertexbuffer.put(elementArr).flip();
+		elementbuffer.put(elementArr).flip();
 		
 		EBOID = GL46.glGenBuffers();
 		GL46.glBindBuffer(GL46.GL_ELEMENT_ARRAY_BUFFER, EBOID);
@@ -136,13 +135,11 @@ public class LvlEdit extends Scene {
 	
 	public LvlEdit(){
 		
-		init();
-		
+		System.out.println("Welcome to the Lvl-Editor");
 	}
 
 	@Override
 	public void update(float deltaT) {
-	
 		 // Bind shader program
         GL46.glUseProgram(ShaderProg);
         // Bind the VAO that we're using
