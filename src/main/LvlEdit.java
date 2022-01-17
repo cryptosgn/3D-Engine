@@ -11,19 +11,18 @@ import org.lwjgl.opengl.GL46;
 public class LvlEdit extends Scene {
 	
 	private String vertexShaderSrc = "#version 460\r\n"
+			+ "layout (location=0) in vec3 aPos;\r\n"
+			+ "layout (location=1) in vec4 aColor;\r\n"
 			+ "\r\n"
 			+ "uniform mat4 uProj;\r\n"
 			+ "uniform mat4 uView;\r\n"
-			+ "\r\n"
-			+ "layout (location=0) in vec3 aPos;\r\n"
-			+ "layout (location=1) in vec4 aColor;\r\n"
 			+ "\r\n"
 			+ "out vec4 fColor;\r\n"
 			+ "\r\n"
 			+ "void main()\r\n"
 			+ "{\r\n"
 			+ "    fColor = aColor;\r\n"
-			+ "    gl_Position = uView * uProj * vec4(aPos, 1.0f);\r\n"
+			+ "    gl_Position = uProj * uView * vec4(aPos, 1.0);\r\n"
 			+ "}";
 	
 	private String fragmentShaderSrc = "#version 460\r\n"
@@ -44,7 +43,7 @@ public class LvlEdit extends Scene {
 	         0.5f,  100.5f, 0.0f,       0.0f, 1.0f, 0.0f, 1.0f, // Top left     1
 	          100.5f,  100.5f, 0.0f ,      1.0f, 0.0f, 1.0f, 1.0f, // Top right    2
 	         0.5f, 0.5f, 0.0f,       1.0f, 1.0f, 0.0f, 1.0f // Bottom left  3
-	         //Mehr nicht möglich wegen idexierung
+	         //Mehr nicht mï¿½glich wegen idexierung
 	};
 	
 //	+++Wichtig+++ muss gegen den Uhrzeigersinn verlaufen
@@ -136,10 +135,10 @@ public class LvlEdit extends Scene {
 		int floatsize = 4; // a float is 4 bytes in java
 		int vertexsize = (positionsize + colorsize)*floatsize; // Size of 1 vertex in bytes
 		
-//		Position 1 ist von der Größe positionsize
+//		Position 1 ist von der Grï¿½ï¿½e positionsize
 		GL46.glVertexAttribPointer(0, positionsize, GL46.GL_FLOAT, false, vertexsize, 0);
 		GL46.glEnableVertexAttribArray(0);
-//		Der Letzte Wert dieser Methode ist der Pointer, was beduted, dass in diesem Falle das Ganze Auf diese Position "zeigt", worüber es dann abgerufen werden kann
+//		Der Letzte Wert dieser Methode ist der Pointer, was beduted, dass in diesem Falle das Ganze Auf diese Position "zeigt", worï¿½ber es dann abgerufen werden kann
 		GL46.glVertexAttribPointer(1, colorsize, GL46.GL_FLOAT, false, vertexsize, positionsize*floatsize);
 		GL46.glEnableVertexAttribArray(1);
 	}

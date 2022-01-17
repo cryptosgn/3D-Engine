@@ -8,6 +8,8 @@ public class Cam {
 	
     private Matrix4f projectionMatrix, viewMatrix;
     public Vector2f position;
+    private static final float FOV = (float) Math.toRadians(60.0f);
+	private static final float aspectRatio = 1920.0f / 1080.0f;
 
     public Cam(Vector2f position) {
         this.position = position;
@@ -16,14 +18,12 @@ public class Cam {
         adjustProjection();
     }
 
-//    Cam muss noch non-Orthografisch gemacht werden (Also Vec3f und andere Perspektive)
     public void adjustProjection() {
-        projectionMatrix.identity();
-//        non-ortho machen
-        projectionMatrix.ortho(0.0f, 32.0f * 40.0f, 0.0f, 32.0f * 21.0f, 0.0f, 100.0f);
+    	projectionMatrix = new Matrix4f().perspective(FOV, aspectRatio,
+    	0.01f, 1000.0f);
         
     }
-
+    
     public Matrix4f getViewMatrix() {
         Vector3f cameraFront = new Vector3f(0.0f, 0.0f, -1.0f);
         Vector3f cameraUp = new Vector3f(0.0f, 1.0f, 0.0f);
@@ -31,6 +31,7 @@ public class Cam {
         this.viewMatrix.lookAt(new Vector3f(position.x, position.y, 20.0f),
                                         cameraFront.add(position.x, position.y, 0.0f),
                                         cameraUp);
+//        In OGL eine Scale-Methode, sowie eine Pitch- und Yaw-Methode finden
 
         return this.viewMatrix;
     }

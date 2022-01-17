@@ -52,7 +52,7 @@ public class Window {
 				currentscene.init();
 				break;
 				}	
-//				assert schreibt Automatisch Fehlerbericht, wenn es nicht klappt... diese Art ovn Problem hat man vorher händisch mit Kommentaren gemacht
+//				assert schreibt Automatisch Fehlerbericht, wenn es nicht klappt... diese Art ovn Problem hat man vorher hï¿½ndisch mit Kommentaren gemacht
 				default: {
 					assert false : "Unknown Scene";
 					break;
@@ -132,5 +132,6 @@ public class Window {
 //		System.out.println(deltaT);
 		}
 	}
+	
 	
 }
