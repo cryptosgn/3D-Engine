@@ -2,12 +2,19 @@ package main;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL46;
 
 public class LvlEdit extends Scene {
 	
 	private String vertexShaderSrc = "#version 460\r\n"
+			+ "\r\n"
+			+ "uniform mat4 uProj;\r\n"
+			+ "uniform mat4 uView;\r\n"
+			+ "\r\n"
 			+ "layout (location=0) in vec3 aPos;\r\n"
 			+ "layout (location=1) in vec4 aColor;\r\n"
 			+ "\r\n"
@@ -16,7 +23,7 @@ public class LvlEdit extends Scene {
 			+ "void main()\r\n"
 			+ "{\r\n"
 			+ "    fColor = aColor;\r\n"
-			+ "    gl_Position = vec4(aPos, 1.0f);\r\n"
+			+ "    gl_Position = uView * uProj * vec4(aPos, 1.0f);\r\n"
 			+ "}";
 	
 	private String fragmentShaderSrc = "#version 460\r\n"
@@ -33,18 +40,18 @@ public class LvlEdit extends Scene {
 	private float[] vertexArr = {
 //			position			color
 //			x,y,z				r,g,b,a
-	         0.5f, -0.5f, 0.0f,       1.0f, 0.0f, 0.0f, 0.0f, // Bottom right 0
-	         -0.5f,  1.0f, 0.0f,       0.0f, 1.0f, 0.0f, 0.0f, // Top left     1
-	          0.5f,  0.5f, 0.0f ,      0.0f, 0.0f, 1.0f, 1.0f, // Top right    2
-	         -0.5f, -0.5f, 0.0f,       0.0f, 0.0f, 0.0f, 1.0f, // Bottom left  3
-//			potenzielle Fehlerquelle
+	         100.5f, 0.5f, 0.0f,       1.0f, 0.0f, 0.0f, 1.0f, // Bottom right 0
+	         0.5f,  100.5f, 0.0f,       0.0f, 1.0f, 0.0f, 1.0f, // Top left     1
+	          100.5f,  100.5f, 0.0f ,      1.0f, 0.0f, 1.0f, 1.0f, // Top right    2
+	         0.5f, 0.5f, 0.0f,       1.0f, 1.0f, 0.0f, 1.0f // Bottom left  3
+	         //Mehr nicht möglich wegen idexierung
 	};
 	
 //	+++Wichtig+++ muss gegen den Uhrzeigersinn verlaufen
 	private int[] elementArr = {
 			
             2, 1, 0, // Top right triangle
-            3, 2, 0 // bottom left triangle
+            0, 1, 3 // bottom left triangle
 			
 	};
 	
@@ -57,21 +64,24 @@ public class LvlEdit extends Scene {
 	
 	@Override
 	public void init() {
-//		Shader compilen und linken
-		
+		this.ZweiundVierzig = new Cam(new Vector2f());
+//		Shader compilen und linken	
 //		Shader laden und compilen
-		
-//		eventueller Fehler hier
 		vertexID = GL46.glCreateShader(GL46.GL_VERTEX_SHADER);
 		
 		GL46.glShaderSource(vertexID, vertexShaderSrc);
 		
 		GL46.glCompileShader(vertexID);
 		
-//		ERRORCHECK
-//		i = info
 		int funzt = GL46.glGetShaderi(vertexID, GL46.GL_COMPILE_STATUS);
 		
+        int success = GL46.glGetShaderi(vertexID, GL46.GL_COMPILE_STATUS);
+        if (success == GL46.GL_FALSE) {
+            int len = GL46.glGetShaderi(vertexID, GL46.GL_INFO_LOG_LENGTH);
+            System.out.println("ERROR: '" + "'\n\tVertex shader compilation failed.");
+            System.out.println(GL46.glGetShaderInfoLog(vertexID, len));
+            assert false : "";
+        }
 		
 		fragmentID = GL46.glCreateShader(GL46.GL_FRAGMENT_SHADER);
 		
@@ -79,13 +89,15 @@ public class LvlEdit extends Scene {
 		
 		GL46.glCompileShader(fragmentID);
 		
-//		ERRORCHECK
-//		i = info
-		funzt = GL46.glGetShaderi(fragmentID, GL46.GL_COMPILE_STATUS);
-		
+        success = GL46.glGetShaderi(fragmentID, GL46.GL_COMPILE_STATUS);
+        if (success == GL46.GL_FALSE) {
+            int len = GL46.glGetShaderi(fragmentID, GL46.GL_INFO_LOG_LENGTH);
+            System.out.println("ERROR: '" + "'\n\tFragment shader compilation failed.");
+            System.out.println(GL46.glGetShaderInfoLog(fragmentID, len));
+            assert false : "";
+        }
+        
 		if(funzt == GL46.GL_FALSE) {
-//		potenzielle Fehlerquelle
-//			int lenght = GL46.glGetShaderi(vertexID, GL46.GL_INFO_LOG_LENGTH);
 			
 		System.out.println(GL46.glGetShaderInfoLog(fragmentID));
 		System.out.println(GL46.glGetShaderInfoLog(vertexID));
@@ -140,6 +152,13 @@ public class LvlEdit extends Scene {
 
 	@Override
 	public void update(float deltaT) {
+		
+        ZweiundVierzig.position.x -= deltaT * 50.0f;
+        ZweiundVierzig.position.y -= deltaT * 20.0f;
+		
+		uploadMat4f("uProj", ZweiundVierzig.getProjectionMatrix());
+		uploadMat4f("uView", ZweiundVierzig.getViewMatrix());
+		
 		 // Bind shader program
         GL46.glUseProgram(ShaderProg);
         // Bind the VAO that we're using
@@ -148,10 +167,16 @@ public class LvlEdit extends Scene {
         // Enable the vertex attribute pointers
         GL46.glEnableVertexAttribArray(0);
         GL46.glEnableVertexAttribArray(1);
-
+        
+//        Wireframe-mode
+        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_LINE);
+        
         GL46.glDrawElements(GL46.GL_TRIANGLES, elementArr.length, GL46.GL_UNSIGNED_INT, 0);
-
+        
+//        disable Wireframe
+        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_FILL);
         // Unbind everything
+
         GL46.glDisableVertexAttribArray(0);
         GL46.glDisableVertexAttribArray(1);
 
@@ -160,4 +185,11 @@ public class LvlEdit extends Scene {
         GL46.glUseProgram(0);
 		
 	}
+	
+    public void uploadMat4f(String varName, Matrix4f mat4) {
+        int varLocation = GL46.glGetUniformLocation(ShaderProg, varName);
+        FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16); //4x4=16
+        mat4.get(matrixBuffer);
+        GL46.glUniformMatrix4fv(varLocation, false, matrixBuffer);
+    }
 }

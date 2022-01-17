@@ -25,7 +25,7 @@ public class Window {
 	protected Window() {
 		this.height = 1080;
 		this.width = 1920;
-		this.title = "GAME";
+		this.title = "Chairsimulator v0.9.0 alpha release";
 	}
 
 	public void run() {
