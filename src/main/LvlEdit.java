@@ -17,47 +17,43 @@ public class LvlEdit extends Scene {
 	private String vertexShaderSrc = "#version 460\r\n"
 			+ "layout (location=0) in vec3 aPos;\r\n"
 			+ "layout (location=1) in vec4 aColor;\r\n"
-			+ "layout (location=2) in vec2 aTexCoords;\r\n"
 			+ "\r\n"
 			+ "uniform mat4 uProj;\r\n"
 			+ "uniform mat4 uView;\r\n"
 			+ "\r\n"
 			+ "out vec4 fColor;\r\n"
-			+ "out vec2 fTexCoords;\r\n"
 			+ "\r\n"
 			+ "void main()\r\n"
 			+ "{\r\n"
 			+ "    fColor = aColor;\r\n"
-			+ "    fTexCoords = aTexCoords;\r\n"
 			+ "    gl_Position = uProj * uView * vec4(aPos, 1.0);\r\n"
 			+ "}";
 	
 	private String fragmentShaderSrc = "#version 460\r\n"
 			+ "\r\n"
 			+ "uniform float uTime;\r\n"
-			+ "uniform sampler2D TEX_SAMPLER;\r\n"
 			+ "\r\n"
 			+ "in vec4 fColor;\r\n"
-			+ "in vec2 fTexCoords;\r\n"
 			+ "\r\n"
 			+ "out vec4 color;\r\n"
 			+ "\r\n"
 			+ "void main()\r\n"
 			+ "{\r\n"
-			+ "    color = texture(TEX_SAMPLER, fTexCoords);\r\n"
+			+ "    float noise = fract(sin(dot(fColor.xy ,vec2(12.9898,78.233))) * 43758.5453);\r\n"
+			+ "    color = fColor * noise;\r\n"
 			+ "}";
 	
 	private float[] vertexArr = {
 //			position			color
 //			x,y,z				r,g,b,a
-		    -0.5f,  0.5f,  0.5f,	0.5f, 0.0f, 0.0f, 1.0f,
-		    -0.5f, -0.5f,  0.5f,	0.0f, 0.5f, 0.0f, 1.0f,
-		    0.5f, -0.5f,  0.5f,		0.0f, 0.0f, 0.5f, 1.0f,
-		    0.0f, 0.0f, 0.5f,		0.0f, 0.5f, 0.5f, 1.0f,
-		    -0.5f,  0.5f, -0.5f,	0.5f, 0.0f, 0.0f, 1.0f,
+		    -0.5f,  0.5f,  0.5f,	1.0f, 0.0f, 0.0f, 1.0f,
+		    -0.5f, -0.5f,  0.5f,	0.0f, 1.0f, 0.0f, 1.0f,
+		    0.5f, -0.5f,  0.5f,		0.0f, 0.0f, 1.0f, 1.0f,
+		    0.0f, 0.0f, 0.5f,		0.0f, 1.0f, 1.0f, 1.0f,
+		    -0.5f,  0.5f, -0.5f,	1.0f, 0.0f, 0.0f, 1.0f,
 		    0.5f,  0.5f, -0.5f,		0.0f, 0.5f, 0.0f, 1.0f,
-		    -0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 0.5f, 1.0f,
-		    0.5f, -0.5f, -0.5f,	    0.0f, 0.5f, 0.5f, 1.0f
+		    -0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 1.0f, 1.0f,
+		    0.5f, -0.5f, -0.5f,	    0.0f, 1.0f, 1.0f, 1.0f
 	};
 	
 //	+++Wichtig+++ muss gegen den Uhrzeigersinn verlaufen
@@ -204,7 +200,7 @@ public class LvlEdit extends Scene {
 			createUniform("uProj");
 			createUniform("uView");
 //			createUniform("uTime");
-			createUniform("TEX_SAMPLER");
+//			createUniform("TEX_SAMPLER");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
