@@ -25,7 +25,7 @@ public class Window {
 	protected Window() {
 		this.height = 1080;
 		this.width = 1920;
-		this.title = "Chairsimulator v0.9.0 alpha release";
+		this.title = "Chairsimulator v0.9.0 alpha release (eigentlich noch nichtmal ( ͡° ͜ʖ ͡ – ✧))";
 	}
 
 	public void run() {
@@ -52,7 +52,7 @@ public class Window {
 				currentscene.init();
 				break;
 				}	
-//				assert schreibt Automatisch Fehlerbericht, wenn es nicht klappt... diese Art ovn Problem hat man vorher h�ndisch mit Kommentaren gemacht
+//				assert schreibt Automatisch Fehlerbericht, wenn es nicht klappt...
 				default: {
 					assert false : "Unknown Scene";
 					break;
@@ -94,6 +94,9 @@ public class Window {
 		
 		// Make the OpenGL context current -> tells the program which window is meant from there on
 		GLFW.glfwMakeContextCurrent(mainwindow);
+		
+//		Make the cursor invisible
+		GLFW.glfwSetInputMode(mainwindow, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
 		
 		// Enable v-sync -> Buffer Swapping
 		GLFW.glfwSwapInterval(1);

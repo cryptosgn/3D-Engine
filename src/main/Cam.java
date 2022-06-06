@@ -9,21 +9,23 @@ import org.joml.Vector2f;
 public class Cam {
 	
 	protected static HashMap<String, Integer> uniforms;
-    private Matrix4f projectionMatrix, viewMatrix;;
-    public Vector2f position;
+    private Matrix4f projectionMatrix, viewMatrix, transformationMatrix;
+    public Vector3f position;
     private static final float FOV = 70f;
     private static final float NEAR_PLANE = 0.1f;
     private static final float FAR_PLANE = 1000.0f;
 
 
-    public Cam(Vector2f position) {
+    public Cam(Vector3f position) {
     	uniforms = new HashMap<>();
         this.position = position;
         this.projectionMatrix = new Matrix4f();
         this.viewMatrix = new Matrix4f();
+        this.transformationMatrix = new Matrix4f();
         adjustProjection();
-//        System.out.println(projectionMatrix);
-//        System.out.println(viewMatrix);
+        System.out.println(projectionMatrix);
+        System.out.println(viewMatrix);
+        System.out.println(transformationMatrix);
     }
 
     public void adjustProjection() {
@@ -34,7 +36,7 @@ public class Cam {
         float xScale = yScale / aspectRatio;
         float frustumLength = FAR_PLANE - NEAR_PLANE;
         
-        projectionMatrix = new Matrix4f();
+//        projectionMatrix = new Matrix4f();
         projectionMatrix.m00(xScale);
         projectionMatrix.m11(yScale);
         projectionMatrix.m22(-((FAR_PLANE + NEAR_PLANE) / frustumLength));
@@ -58,7 +60,13 @@ public class Cam {
     }
 
     public Matrix4f getProjectionMatrix() {
-        return this.projectionMatrix;
+    	
+        return this.projectionMatrix;  
+    }
+    
+    public Matrix4f getTransformationMatrix() {
+    	
+    	return this.transformationMatrix;
     }
     
 }

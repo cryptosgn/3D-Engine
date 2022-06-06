@@ -6,10 +6,12 @@ public class Mouse {
 	
 	private static Mouse instance;
 	
-	private double sx, sy;
-	private double xPos, yPos, lastX, lastY;
-	private boolean mbp[] = new boolean[3];
-	private boolean isdragging;
+	private static double sx;
+
+	private static double sy;
+	private static double xPos, yPos, lastX, lastY;
+	private static boolean mbp[] = new boolean[3];
+	private static boolean isdragging;
 	
 	private Mouse() {
 		
@@ -78,29 +80,29 @@ public class Mouse {
 		
 	}
 //	evtl. noch alle Variablen static machen
-	public double getSx() {
+	public static double getSx() {
 		return sx;
 	}
 
-	public double getSy() {
+	public static double getSy() {
 		return sy;
 	}
-//	Deltas aus Video noch einfügen
-	public double getxPos() {
+//	Deltas aus Video noch einfï¿½gen
+	public static double getxPos() {
 		return xPos;
 	}
 
-	public double getyPos() {
+	public static double getyPos() {
 		return yPos;
 	}
 
-	public boolean[] getMbp() {
+	public static boolean[] getMbp() {
 //		if (button <= mouse().mbp.length) {
 		return mbp;
 //		}
 	}
 
-	public boolean isIsdragging() {
+	public static boolean isIsdragging() {
 		return isdragging;
 	}
 		

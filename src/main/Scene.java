@@ -2,7 +2,7 @@ package main;
 
 public abstract class Scene {
 	
-	protected Cam ZweiundVierzig;
+	protected Kamera ZweiundVierzig;
 	
 	public Scene() {
 		

@@ -5,7 +5,9 @@ import java.nio.IntBuffer;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL46;
 import org.lwjgl.openvr.Texture;
 import org.lwjgl.system.MemoryStack;
@@ -19,14 +21,16 @@ public class LvlEdit extends Scene {
 			+ "layout (location=1) in vec4 aColor;\r\n"
 			+ "\r\n"
 			+ "uniform mat4 uProj;\r\n"
+			+ "uniform mat4 uTrans;\r\n"
 			+ "uniform mat4 uView;\r\n"
+			//+ "uniform mat4 transform;\r\n"
 			+ "\r\n"
 			+ "out vec4 fColor;\r\n"
 			+ "\r\n"
 			+ "void main()\r\n"
 			+ "{\r\n"
 			+ "    fColor = aColor;\r\n"
-			+ "    gl_Position = uProj * uView * vec4(aPos, 1.0);\r\n"
+			+ "    gl_Position = uProj * uView * uTrans * vec4(aPos, 1.0);\r\n"
 			+ "}";
 	
 	private String fragmentShaderSrc = "#version 460\r\n"
@@ -39,8 +43,8 @@ public class LvlEdit extends Scene {
 			+ "\r\n"
 			+ "void main()\r\n"
 			+ "{\r\n"
-			+ "    float noise = fract(sin(dot(fColor.xy ,vec2(12.9898,78.233))) * 43758.5453);\r\n"
-			+ "    color = fColor * noise;\r\n"
+//			+ "    float noise = fract(sin(dot(fColor.xy ,vec2(12.9898,78.233))) * 43758.5453);\r\n"
+			+ "    color = fColor;\r\n"
 			+ "}";
 	
 	private float[] vertexArr = {
@@ -85,7 +89,7 @@ public class LvlEdit extends Scene {
 	@Override
 	public void init() {
 		
-		this.ZweiundVierzig = new Cam(new Vector2f());
+		this.ZweiundVierzig = new Kamera(0f,0f,1f);
 //		Shader compilen und linken	
 //		Shader laden und compilen
 		vertexID = GL46.glCreateShader(GL46.GL_VERTEX_SHADER);
@@ -172,42 +176,68 @@ public class LvlEdit extends Scene {
 		
 		System.out.println("Welcome to the Lvl-Editor");
 	}
-
+	
+	private double mouseposxdelta, mouseposydelta = 0d;
+	
+	private float rotationyaw = 0;
+	private float rotationpitch = 0;
+	
 	@Override
 	public void update(float deltaT) {
 		
-		// Update rotation angle
-//		float rotation = gameItem.getRotation().x + 1.5f;
-//		if ( rotation > 360 ) {
-//		    rotation = 0;
-//		}
-//		gameItem.setRotation(rotation, rotation, rotation);
+//		movement (Problem: Wird sich immer den Achsen entsprechen bewegen -> Mousemovement irrelevant geworden)
+		if(Keyboard.iskeypressed(GLFW.GLFW_KEY_S)) {
+			ZweiundVierzig.changeposition(0f, 0f, 0.01f);
+		}
+		if(Keyboard.iskeypressed(GLFW.GLFW_KEY_W)) {
+			ZweiundVierzig.changeposition(0f, 0f, -0.01f);
+		}
+		if(Keyboard.iskeypressed(GLFW.GLFW_KEY_A)) {
+			ZweiundVierzig.changeposition(-0.01f, 0f, 0f);
+		}
+		if(Keyboard.iskeypressed(GLFW.GLFW_KEY_D)) {
+			ZweiundVierzig.changeposition(0.01f, 0f, 0f);
+		}
 		
-//        ZweiundVierzig.position.x -= deltaT * 50.0f;
-//        ZweiundVierzig.position.y -= deltaT * 20.0f;
-
-		 // Bind shader program
+//		rotation angle
+//		keyboardtest (noch durch mouse austauschen)
+		if(Keyboard.iskeypressed(GLFW.GLFW_KEY_Q)) {
+			ZweiundVierzig.mouseinput(this.rotationyaw++, this.rotationpitch);
+		}
+		if(Keyboard.iskeypressed(GLFW.GLFW_KEY_E)) {
+			ZweiundVierzig.mouseinput(this.rotationyaw--, this.rotationpitch);
+		}	
+		if(Keyboard.iskeypressed(GLFW.GLFW_KEY_X)) {
+			ZweiundVierzig.mouseinput(this.rotationyaw, this.rotationpitch++);
+		}
+		if(Keyboard.iskeypressed(GLFW.GLFW_KEY_C)) {
+			ZweiundVierzig.mouseinput(this.rotationyaw, this.rotationpitch--);
+		}	
+		
+		
+//		  Bind shader program
         GL46.glUseProgram(ShaderProg);
-        // Bind the VAO that we're using
+//         Bind the VAO that we're using
         GL46.glBindVertexArray(VAOID);
 
-        // Enable the vertex attribute pointers
+//         Enable the vertex attribute pointers
         GL46.glEnableVertexAttribArray(0);
         GL46.glEnableVertexAttribArray(1);
         
-//        kann in späteren Versionen ausgelagert werden
+//        kann in spï¿½teren Versionen ausgelagert werden
 		try {
 			createUniform("uProj");
 			createUniform("uView");
+			createUniform("uTrans");
 //			createUniform("uTime");
 //			createUniform("TEX_SAMPLER");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
         setUniform("uProj", ZweiundVierzig.getProjectionMatrix());
         setUniform("uView", ZweiundVierzig.getViewMatrix());
+        setUniform("uTrans", ZweiundVierzig.getTransformationMatrix());
 //        setUniformfloat("uView", 1.0f);  
         
         uploadTexture("TEX_SAMPLER", 0);
@@ -215,14 +245,14 @@ public class LvlEdit extends Scene {
         testTexture.bind();
         
 //        Wireframe-mode
-        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_LINE);
+//        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_LINE); 
         
         GL46.glDrawElements(GL46.GL_TRIANGLES, elementArr.length, GL46.GL_UNSIGNED_INT, 0);
         
 //        disable Wireframe
-        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_FILL);
-        // Unbind everything
-
+//        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_FILL);
+        
+//        Unbind everything
         GL46.glDisableVertexAttribArray(0);
         GL46.glDisableVertexAttribArray(1);
 
@@ -239,7 +269,7 @@ public class LvlEdit extends Scene {
     	        throw new Exception("Could not find uniform:" +
     	            uniformName);
     	    }
-    	    Cam.uniforms.put(uniformName, uniformLocation);
+    	    Kamera.uniforms.put(uniformName, uniformLocation);
     }
     	
     	public void setUniform(String uniformName, Matrix4f value) {
@@ -247,8 +277,8 @@ public class LvlEdit extends Scene {
     	    try (MemoryStack stack = MemoryStack.stackPush()) {
     	        FloatBuffer fb = stack.mallocFloat(16);
     	        value.get(fb);
-//    	        System.out.println(Cam.uniforms.get(uniformName));
-    	        GL46.glUniformMatrix4fv(Cam.uniforms.get(uniformName), false, fb);
+//    	        System.out.println(Kamera.uniforms.get(uniformName));
+    	        GL46.glUniformMatrix4fv(Kamera.uniforms.get(uniformName), false, fb);
     	    }
     	}
     	
@@ -256,8 +286,8 @@ public class LvlEdit extends Scene {
     	    // Dump the matrix into a float buffer
     	    try (MemoryStack stack = MemoryStack.stackPush()) {
     	        FloatBuffer fb = stack.mallocFloat(1);
-//    	        System.out.println(Cam.uniforms.get(uniformName));
-    	        GL46.glUniformMatrix4fv(Cam.uniforms.get(uniformName), false, fb);
+//    	        System.out.println(Kamera.uniforms.get(uniformName));
+    	        GL46.glUniformMatrix4fv(Kamera.uniforms.get(uniformName), false, fb);
     	    }
     	}
     	
