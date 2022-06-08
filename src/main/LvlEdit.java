@@ -245,12 +245,12 @@ public class LvlEdit extends Scene {
         testTexture.bind();
         
 //        Wireframe-mode
-//        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_LINE); 
+        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_LINE); 
         
         GL46.glDrawElements(GL46.GL_TRIANGLES, elementArr.length, GL46.GL_UNSIGNED_INT, 0);
         
 //        disable Wireframe
-//        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_FILL);
+        GL46.glPolygonMode(GL46.GL_FRONT_AND_BACK, GL46.GL_FILL);
         
 //        Unbind everything
         GL46.glDisableVertexAttribArray(0);
